@@ -1,53 +1,63 @@
 # FxSound fork: current handoff
 
-Updated 18 October 2026. Work resumed after the owner-requested checkpoint pause.
+Updated 18 October 2026 after owner-authorized continuation and publication.
 
-- Fork: https://github.com/nuk3zz/fxsound-app (created and verified).
+## Source and status
+
+- Fork branch: https://github.com/nuk3zz/fxsound-app/tree/feature/windows-preset-toggle
 - Windows checkout: `C:\Projects\fxsound-app`.
-- Branch: `feature/windows-preset-toggle`, based on upstream
-  `d8e7a23d37ed5939c2a3090a1c1756c7f2500b17`.
-- Windows feature checkpoint: `e6b8b12` (local). The prepared macOS source and
-  handoff are saved in the next local checkpoint. No feature push has been made;
-  publication and native macOS CI await owner approval.
-- Preset toggle and settings controls implemented; 13 controller scenarios and
-  10 settings migration scenarios passed with native MSVC. Migration checks use
-  real JUCE PropertySet fallback behavior. Evidence:
-  `C:\Projects\_handoff\fxsound-20261018\controller-tests\RESULTS.md`.
-- Independent source review found no blocking toggle defects. Packaging now stages
-  Factsoft presets and fonts beside the executable.
-- Windows x64 Release build and package succeeded. ZIP SHA256:
-  `1B622F6B62A515678A47F7B45188CBA62E2686614ADA884DDA5C8F2469326A11`.
-  All staged asset hashes match. Two existing non-const references to temporary
-  strings in FxWindow.cpp were corrected for the documented JUCE6.1.6/MSVC build.
-- Official FxSound remains installed/running; no driver installation, default
-  audio-route change or live audio/hotkey acceptance was performed.
-- Linux implementation deferred to Kali by the owner; see KALI_HANDOFF.md.
-- macOS preview source/build preparation is implemented in `ports/macos`.
-  Portable CTest passes on Windows with warnings-as-errors; shared UI syntax
-  check and Bash syntax checks pass. CoreAudio/Carbon and the native universal
-  package remain unverified until macOS CI. Physical acceptance awaits the
-  repaired Mac. This is a small EQ foundation, not the original FxSound DSP.
+- Published branch: `feature/windows-preset-toggle`; main remains upstream base
+  `d8e7a23d37ed5939c2a3090a1c1756c7f2500b17`. No merge or deployment.
+- Windows implementation: `e6b8b12`. Native Mac build verified at
+  `6dc5c21395da0f3544b8446f0953dfd8ab68eeb7`. Subsequent checkpoint edits are documentation only.
+- Linux implementation is deferred to the owner's Kali session; see KALI_HANDOFF.md.
 
-## Toolchains
+## Windows delivery
 
-Windows-native Visual Studio 2022 Build Tools installed successfully (exit0) at
-`C:\DevTools\VS2022BuildTools`, MSVC14.44.35207, Windows SDK10.0.26100.0,
-CMake3.31.6-msvc6. JUCE6.1.6 for the Windows app is at
-`C:\Projects\_toolchains\JUCE-6.1.6` (commit2f980209cc4091a4490bb1bafc5d530f16834e58).
-The separate preview dependency JUCE9.0.4 is at
-`C:\Projects\_toolchains\JUCE-9.0.4` (commit3fb5cbc0340758596dac39f7c8de47d562b4896e).
-Do not copy these dependencies into Kali or macOS.
+`artifacts/FxSound-Windows-x64.zip` includes the executable, Factsoft presets,
+external fonts, license, usage guide and per-file SHA256 manifest. ZIP SHA256:
+`1B622F6B62A515678A47F7B45188CBA62E2686614ADA884DDA5C8F2469326A11`.
 
-## Exact next work
+Native x64 Release build succeeds. Thirteen controller scenarios and ten settings
+migration scenarios using real JUCE PropertySet passed. Independent review found
+no blocking toggle defects. Default shortcut Ctrl+Alt+B switches General and the
+chosen alternate (default Bass Boost); configure it in General Preferences.
 
-Windows package: `artifacts/FxSound-Windows-x64.zip`. Quit the official FxSound
-instance before owner acceptance. Source/driver/DSP processing is not replaced.
-The fork-only macOS workflow is prepared but not yet pushed or run. After
-owner approval, push only `feature/windows-preset-toggle` to origin and inspect
-its macOS preview build. Fix native errors on that branch, then download/verify
-the app ZIP. The owner tests physical routing, privacy, reconnect and hotkeys
-on the repaired Mac. Linux implementation resumes only on Kali.
-Review source before requesting any push: the workspace policy says
-“Do not auto-push: pushes may deploy production.” Only the fork feature branch
-should be considered; no upstream submission or main merge is authorized.
-Read DEVELOPMENT_PLAN.md for the paired plan and WINDOWS_PRESET_TOGGLE.md for use.
+Quit the official FxSound instance before launching the fork, since FxSound
+permits one instance. The official app/driver was not replaced, closed or modified
+by this task. Live hotkey/audio acceptance remains with the owner.
+
+## macOS preview delivery
+
+`artifacts/fxsound-mac-preview-0.1.0-universal.zip`, SHA256:
+`e9c684793c76df8fb8f1b11609b89847b4581cba62841b4f2aa52d4a46b3c509`.
+A same-named `.sha256` file accompanies it. The local handoff also preserves the
+ZIP, so the GitHub artifact's retention period is not the only copy.
+
+[Native macOS CI](https://github.com/nuk3zz/fxsound-app/actions/runs/39101841348) passed:
+Apple Silicon and Intel compilation, native CTest, both architecture checks,
+input privacy metadata, ad hoc signature verification, and ZIP/checksum packaging.
+The downloaded ZIP independently matches the checksum; archive inspection confirms
+both Mach-O slices, signature records, macOS13.0 minimum and source revision.
+Portable Windows core tests, shared-UI syntax and Bash syntax also pass.
+
+This is a separate small EQ preview, not the original FxSound DSP. It requires
+BlackHole2ch for system audio, uses Cmd+Option+B, and is ad hoc signed rather than
+notarized. Follow `ports/macos/README.md` for input privacy, device setup and manual
+output restoration. Physical audio, hotkey, unplug/sleep and sustained-playback
+acceptance wait for the repaired Mac.
+
+## Tools and exact next step
+
+Windows-native VS2022 Build Tools: `C:\DevTools\VS2022BuildTools`,
+MSVC14.44.35207, SDK10.0.26100.0, CMake3.31.6-msvc6. Windows JUCE6.1.6:
+`C:\Projects\_toolchains\JUCE-6.1.6`; separate preview JUCE9.0.4:
+`C:\Projects\_toolchains\JUCE-9.0.4`. Keep native dependencies separate per OS.
+
+Owner accepts the Windows toggle and later tests the Mac preview on the repaired
+machine. Linux work resumes from KALI_HANDOFF.md in its native ext4 checkout.
+Full original-DSP portability and release signing/notarization remain future work.
+No audio route or system default was changed and no upstream PR was created.
+
+Plan: DEVELOPMENT_PLAN.md. Local source patches, native logs, package inspection
+and verification receipt: `C:\Projects\_handoff\fxsound-20261018`.

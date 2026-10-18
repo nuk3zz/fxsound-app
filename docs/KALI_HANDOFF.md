@@ -12,8 +12,8 @@ There is no Linux audio backend or verified Linux build in this fork yet.
 - Feature branch: `feature/windows-preset-toggle`.
 - Read `docs/DEVELOPMENT_PLAN.md`, the workspace `PROJECT_WORKFLOW.md`,
   `PROJECT_INDEX.md`, `OS_HANDOFF.md`, and repository guidance first.
-- Check whether the feature branch has been published before fetching it. The
-  task's final handoff records the exact commit and remote status.
+- The feature branch is published. The final handoff records verified build
+  revisions and packages. Fetch this branch into the native Kali checkout.
 - Inspect any existing Kali checkout's dirty state before fetching/switching.
   Never reset it or copy Windows dependencies/build output into Kali.
 

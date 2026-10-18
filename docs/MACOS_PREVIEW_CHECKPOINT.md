@@ -1,6 +1,6 @@
 # macOS preview checkpoint
 
-Status: resumed after the owner's pause; preview foundation implemented on 2026-10-18. Native macOS compilation and physical Mac acceptance are pending. Linux implementation remains deferred to Kali.
+Status: resumed after the owner's pause; preview foundation implemented on 2026-10-18. Native macOS universal compilation, tests and packaging pass; physical Mac acceptance is pending. Linux implementation remains deferred to Kali.
 
 ## Implemented
 
@@ -26,6 +26,20 @@ The earlier proposed `AudioDeviceManager` design was replaced. JUCE 9.0.4's `aud
 - `bash -n ports/macos/scripts/build-macos.sh`: passed.
 - No driver installation or system audio routing was performed on the Windows host.
 
+## Native macOS verification — 18 October 2026
+
+[Successful CI run](https://github.com/nuk3zz/fxsound-app/actions/runs/39101841348) verified source
+`6dc5c21395da0f3544b8446f0953dfd8ab68eeb7` on the macOS15 runner with Xcode16.4.
+Apple Silicon and Intel app slices compile, native CTest passes, architecture and
+input privacy checks pass, the ad hoc signature verifies, and app ZIP plus SHA256
+are uploaded. Build fixes explicitly enable C in CMake and put the lipo input
+before its architecture list. No native app was run against a physical audio device.
+
 ## Exact next steps
 
-Review source and commit locally with the parent task's Windows work. A native macOS workflow is prepared by the parent task; run it only when source push is authorized. Inspect both-architecture build/test/package results before claiming a successful macOS build. When the owner's Mac is repaired, follow `ports/macos/README.md` acceptance steps, especially capture privacy, no feedback/default microphone capture, held-key behavior, device unplug/sleep/rate changes, output restoration and sustained playback. Full FxSound DSP parity and release signing/notarization remain future work.
+Source is published only to the fork's `feature/windows-preset-toggle` branch.
+Use the universal ZIP or rebuild natively using `ports/macos/README.md`. When the
+owner's Mac is repaired, test capture privacy, feedback/default-microphone
+prevention, held-key behavior, device unplug/sleep/rate changes, output restoration
+and sustained playback. Full FxSound DSP parity and release signing/notarization
+remain future work. Linux implementation resumes on Kali.

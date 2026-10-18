@@ -112,10 +112,14 @@ locking, logging, file I/O or preference writes.
 ## Current verification and remaining work
 
 The portable tests pass on Windows with MSVC and warnings treated as errors.
-The shared JUCE UI can be syntax checked on Windows, but that does not compile
-the native CoreAudio or Carbon implementation. macOS CI is supplied separately;
-its result and physical Mac testing must be checked before calling this a working
-macOS build. No native Mac result is claimed by the Windows development session.
+[macOS CI](https://github.com/nuk3zz/fxsound-app/actions/runs/39101841348) also passes for
+source revision `6dc5c21395da0f3544b8446f0953dfd8ab68eeb7`: Apple Silicon and
+Intel app compilation, native CTest, universal-architecture verification, input
+privacy metadata, ad hoc signature verification, and ZIP/checksum packaging.
+The resulting package is `fxsound-mac-preview-0.1.0-universal.zip` in the run's
+artifact. It uses an ad hoc signature and is not notarized. CI compilation and
+numerical tests do not establish physical audio, global shortcut or GUI acceptance;
+those checks await the owner's repaired Mac.
 
 Native acceptance gates: both architectures launch; loopback capture privacy is
 correct; audio is stereo and stable; sustained playback has acceptable latency;

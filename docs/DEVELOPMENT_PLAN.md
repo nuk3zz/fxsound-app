@@ -18,7 +18,7 @@ complete port of FxSound's Windows audio engine.
 | 3 | 5 | Compile Windows x64 and verify behavior with focused tests. | Build + 23 isolated checks passed; physical acceptance pending |
 | 3 | 6 | Independently review the diff, document usage and package the verified build. | Complete for Windows; ZIP and staged hashes verified |
 | 4 | 7 | Prepare a Kali/Linux implementation handoff; resume Linux work on Kali. | Complete; implementation deferred by owner |
-| 4 | 8 | Build a macOS preview foundation and package what can be verified; physical Mac acceptance deferred. | Source + portable tests ready; native CI awaits publication approval |
+| 4 | 8 | Build a macOS preview foundation and package what can be verified; physical Mac acceptance deferred. | Universal app build, native tests and package checks passed; physical acceptance pending |
 
 ## Windows acceptance
 
@@ -64,3 +64,18 @@ changed to value copies to permit the documented JUCE6.1.6/MSVC build.
 
 The separate macOS preview portable core also compiles with warnings-as-errors
 on Windows, and its CTest suite passes. This is not a native macOS build result.
+
+## Verified macOS preview build — 18 October 2026
+
+The fork feature branch is published. [macOS CI](https://github.com/nuk3zz/fxsound-app/actions/runs/39101841348)
+passes at `6dc5c21395da0f3544b8446f0953dfd8ab68eeb7`. The native CoreAudio/Carbon app
+is compiled for arm64 and x86_64, its native portable-core test passes, and privacy
+metadata, ad hoc signature and app ZIP/checksum packaging checks pass. The separate
+EQ preview and physical-device acceptance boundaries still apply. Main and
+upstream are unchanged; Linux implementation remains deferred to Kali.
+
+The downloaded macOS ZIP was independently verified, including both Mach-O CPU
+slices, signature records, privacy metadata and source revision. Local package:
+`artifacts/fxsound-mac-preview-0.1.0-universal.zip`; SHA256
+`e9c684793c76df8fb8f1b11609b89847b4581cba62841b4f2aa52d4a46b3c509`.
+The app requires macOS13+ and BlackHole2ch; physical acceptance awaits the owner.
