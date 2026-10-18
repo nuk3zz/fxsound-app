@@ -40,7 +40,7 @@ app_name="FxSound Mac Preview.app"
 app="$build_dir/FxSoundMacPreview_artefacts/Release/$app_name"
 binary="$app/Contents/MacOS/FxSound Mac Preview"
 [[ -f "$binary" ]] || { echo "Expected app executable not found: $binary" >&2; exit 1; }
-lipo -verify_arch arm64 x86_64 "$binary"
+lipo "$binary" -verify_arch arm64 x86_64
 plutil -extract NSMicrophoneUsageDescription raw -o - "$app/Contents/Info.plist" >/dev/null
 # Ad hoc signing uses no certificate. It is not Developer ID signing or notarization.
 codesign --force --deep --sign - "$app"
