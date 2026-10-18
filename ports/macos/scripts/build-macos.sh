@@ -70,5 +70,5 @@ artifact_dir="$port_dir/artifacts"
 mkdir -p "$artifact_dir"
 zip_file="$artifact_dir/fxsound-mac-preview-0.1.0-universal.zip"
 ditto -c -k --sequesterRsrc "$package_dir" "$zip_file"
-shasum -a 256 "$zip_file" > "$zip_file.sha256"
+(cd "$artifact_dir" && shasum -a 256 "$(basename "$zip_file")" > "$(basename "$zip_file").sha256")
 echo "Packaged: $zip_file"
