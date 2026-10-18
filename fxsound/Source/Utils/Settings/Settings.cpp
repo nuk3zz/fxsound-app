@@ -36,6 +36,8 @@ FxSound::Settings::Settings()
 			<VALUE name="cmd_next_preset" val="393281"/>
 			<VALUE name="cmd_previous_preset" val="393306"/>
 			<VALUE name="cmd_change_output" val="393303"/>
+			<VALUE name="cmd_toggle_preset" val="196674"/>
+			<VALUE name="toggle_preset" val="Bass Boost"/>
 		</PROPERTIES>
     )";
 
@@ -62,6 +64,32 @@ FxSound::Settings::Settings()
 	{
 		default_settings_ = *common_settings;
 		user_settings_->setFallbackPropertySet(&default_settings_);
+	}
+
+	// Existing installations can supply an older common settings file. Add the
+	// new defaults without replacing saved user values, including a cleared key.
+	if (!default_settings_.containsKey("cmd_toggle_preset"))
+	{
+		default_settings_.setValue("cmd_toggle_preset", 196674); // Ctrl + Alt + B
+	}
+	if (!default_settings_.containsKey("toggle_preset"))
+	{
+		default_settings_.setValue("toggle_preset", "Bass Boost");
+	}
+
+	if (!user_settings_->containsKey("cmd_toggle_preset"))
+	{
+		int toggle_key = default_settings_.getIntValue("cmd_toggle_preset");
+		StringArray existing_commands = { "cmd_on_off", "cmd_open_close", "cmd_next_preset", "cmd_previous_preset", "cmd_change_output" };
+		for (auto& command : existing_commands)
+		{
+			if (toggle_key != 0 && user_settings_->getIntValue(command) == toggle_key)
+			{
+				// Keep the existing shortcut and let the user choose a toggle key.
+				user_settings_->setValue("cmd_toggle_preset", 0);
+				break;
+			}
+		}
 	}
 }
 

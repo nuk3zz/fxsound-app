@@ -115,37 +115,13 @@ bool FxHotkeyEditor::keyPressed(const KeyPress& key)
 	int saved_mod;
 	int saved_vk;
 	auto& controller = FxController::getInstance();
-	if (controller.getHotkey(FxController::HK_CMD_ON_OFF, saved_mod, saved_vk))
+	StringArray commands = { FxController::HK_CMD_ON_OFF, FxController::HK_CMD_OPEN_CLOSE,
+		FxController::HK_CMD_NEXT_PRESET, FxController::HK_CMD_PREVIOUS_PRESET,
+		FxController::HK_CMD_NEXT_OUTPUT, FxController::HK_CMD_TOGGLE_PRESET };
+	for (const auto& command : commands)
 	{
-		if (mod == saved_mod && vk == saved_vk)
-		{
-			return false;
-		}
-	}
-	if (controller.getHotkey(FxController::HK_CMD_OPEN_CLOSE, saved_mod, saved_vk))
-	{
-		if (mod == saved_mod && vk == saved_vk)
-		{
-			return false;
-		}
-	}
-	if (controller.getHotkey(FxController::HK_CMD_NEXT_PRESET, saved_mod, saved_vk))
-	{
-		if (mod == saved_mod && vk == saved_vk)
-		{
-			return false;
-		}
-	}
-	if (controller.getHotkey(FxController::HK_CMD_PREVIOUS_PRESET, saved_mod, saved_vk))
-	{
-		if (mod == saved_mod && vk == saved_vk)
-		{
-			return false;
-		}
-	}
-	if (controller.getHotkey(FxController::HK_CMD_NEXT_OUTPUT, saved_mod, saved_vk))
-	{
-		if (mod == saved_mod && vk == saved_vk)
+		if (command != command_ && controller.getHotkey(command, saved_mod, saved_vk)
+			&& mod == saved_mod && vk == saved_vk)
 		{
 			return false;
 		}

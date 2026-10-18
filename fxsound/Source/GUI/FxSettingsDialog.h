@@ -124,7 +124,7 @@ private:
 		juce::Rectangle<float> output_preference_bounds_;
 	};
 
-	class GeneralSettingsPane : public SettingsPane
+	class GeneralSettingsPane : public SettingsPane, private FxModel::Listener
 	{
 	public:
 		GeneralSettingsPane();
@@ -141,14 +141,20 @@ private:
 		static constexpr int LANGUAGE_LABEL_HEIGHT = 24;
 		static constexpr int LANGUAGE_LIST_WIDTH = 120;
 		static constexpr int LANGUAGE_LIST_HEIGHT = 30;
+		static constexpr int PRESET_LIST_HEIGHT = 30;
 
         void setText();
+		void refreshTogglePresets();
+		void visibilityChanged() override;
+		void modelChanged(FxModel::Event event) override;
 
         ToggleButton launch_toggle_;
         ToggleButton hide_help_tips_toggle_;
 		ToggleButton hide_notifications_toggle_;
 		ToggleButton hotkeys_toggle_;
 		OwnedArray<FxHotkeyLabel> hotkey_labels_;
+		Label toggle_preset_label_;
+		ComboBox toggle_preset_list_;
 		FxLanguage language_switch_;
 	};
 

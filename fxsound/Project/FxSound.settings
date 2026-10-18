@@ -3,4 +3,6 @@
   <VALUE name="power" val="1"/>
   <VALUE name="hotkeys" val="1"/>
   <VALUE name="preset" val="General"/>
+  <VALUE name="cmd_toggle_preset" val="196674"/>
+  <VALUE name="toggle_preset" val="Bass Boost"/>
 </PROPERTIES>

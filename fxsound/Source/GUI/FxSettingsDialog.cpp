@@ -339,9 +339,9 @@ FxSettingsDialog::GeneralSettingsPane::GeneralSettingsPane() :
 	hide_notifications_toggle_(TRANS("Hide notifications")),
 	hotkeys_toggle_(TRANS("Disable keyboard shortcuts"))
 {
-	StringArray hotKeySettingsKeys = { FxController::HK_CMD_ON_OFF, FxController::HK_CMD_OPEN_CLOSE, FxController::HK_CMD_NEXT_PRESET, FxController::HK_CMD_PREVIOUS_PRESET, FxController::HK_CMD_NEXT_OUTPUT };
+	StringArray hotKeySettingsKeys = { FxController::HK_CMD_ON_OFF, FxController::HK_CMD_OPEN_CLOSE, FxController::HK_CMD_NEXT_PRESET, FxController::HK_CMD_PREVIOUS_PRESET, FxController::HK_CMD_NEXT_OUTPUT, FxController::HK_CMD_TOGGLE_PRESET };
 	StringArray hotkey_names = { "Turn FxSound On/Off", "Open/Close FxSound",
-								   "Use Next Preset", "Use Previous Preset", "Change Playback Device"};
+								   "Use Next Preset", "Use Previous Preset", "Change Playback Device", "Toggle preset"};
 
 	setFocusContainer(true);
 
@@ -371,6 +371,22 @@ FxSettingsDialog::GeneralSettingsPane::GeneralSettingsPane() :
 		hotkey_labels_.add(label);
 		addAndMakeVisible(label);
 	}
+
+	toggle_preset_label_.setColour(Label::textColourId, getLookAndFeel().findColour(TextButton::textColourOnId));
+	toggle_preset_label_.setJustificationType(Justification::centredLeft);
+	toggle_preset_list_.setMouseCursor(MouseCursor::PointingHandCursor);
+	toggle_preset_list_.setWantsKeyboardFocus(true);
+	toggle_preset_list_.setJustificationType(Justification::centredLeft);
+	toggle_preset_list_.onChange = [this]() {
+		auto index = toggle_preset_list_.getSelectedItemIndex();
+		if (index >= 0)
+		{
+			FxController::getInstance().setTogglePreset(toggle_preset_list_.getItemText(index));
+			refreshTogglePresets();
+		}
+	};
+	refreshTogglePresets();
+	FxModel::getModel().addListener(this);
 
     if (SysInfo::canSupportHotkeys())
     {
@@ -408,6 +424,8 @@ FxSettingsDialog::GeneralSettingsPane::GeneralSettingsPane() :
 	addAndMakeVisible(&hide_help_tips_toggle_);
 	addAndMakeVisible(&hide_notifications_toggle_);
 	addAndMakeVisible(&hotkeys_toggle_);
+	addAndMakeVisible(&toggle_preset_label_);
+	addAndMakeVisible(&toggle_preset_list_);
 	addAndMakeVisible(&language_switch_);
 
 	setText();
@@ -415,6 +433,7 @@ FxSettingsDialog::GeneralSettingsPane::GeneralSettingsPane() :
 
 FxSettingsDialog::GeneralSettingsPane::~GeneralSettingsPane()
 {
+	FxModel::getModel().removeListener(this);
 }
 
 void FxSettingsDialog::GeneralSettingsPane::resized()
@@ -445,6 +464,10 @@ void FxSettingsDialog::GeneralSettingsPane::resized()
 		hotkey_label->setBounds(HOTKEY_LABEL_X, y, getWidth()-HOTKEY_LABEL_X, HOTKEY_LABEL_HEIGHT);
 		y += HOTKEY_LABEL_HEIGHT + 10;
 	}
+
+	toggle_preset_label_.setBounds(HOTKEY_LABEL_X, y, getWidth() - HOTKEY_LABEL_X - X_MARGIN, HOTKEY_LABEL_HEIGHT);
+	toggle_preset_list_.setBounds(HOTKEY_LABEL_X, toggle_preset_label_.getBottom() + 5,
+		getWidth() - HOTKEY_LABEL_X - X_MARGIN, PRESET_LIST_HEIGHT);
 }
 
 void FxSettingsDialog::GeneralSettingsPane::paint(Graphics& g)
@@ -466,6 +489,58 @@ void FxSettingsDialog::GeneralSettingsPane::setText()
 	hide_notifications_toggle_.setButtonText(TRANS("Hide notifications"));
 
     hotkeys_toggle_.setButtonText(TRANS("Disable keyboard shortcuts"));
+	toggle_preset_label_.setFont(theme.getSmallFont());
+	toggle_preset_label_.setText(TRANS("Toggle preset: General") + L" \u2194", NotificationType::dontSendNotification);
+}
+
+void FxSettingsDialog::GeneralSettingsPane::refreshTogglePresets()
+{
+	auto& model = FxModel::getModel();
+	auto alternate = FxController::getInstance().getTogglePreset();
+	int selected_id = 0;
+
+	toggle_preset_list_.clear(NotificationType::dontSendNotification);
+	for (int i = 0; i < model.getPresetCount(); i++)
+	{
+		auto name = model.getPreset(i).name;
+		if (name.equalsIgnoreCase("General"))
+		{
+			continue;
+		}
+
+		int item_id = i + 1;
+		toggle_preset_list_.addItem(name, item_id);
+		if (name.equalsIgnoreCase(alternate))
+		{
+			selected_id = item_id;
+		}
+	}
+
+	String placeholder = TRANS("Select alternate preset");
+	if (selected_id == 0 && alternate.isNotEmpty())
+	{
+		placeholder = TRANS("Unavailable") + ": " + alternate;
+	}
+	toggle_preset_list_.setTextWhenNothingSelected(placeholder);
+	toggle_preset_list_.setTextWhenNoChoicesAvailable(TRANS("No alternate presets available"));
+	toggle_preset_list_.setSelectedId(selected_id, NotificationType::dontSendNotification);
+	toggle_preset_list_.setTooltip(selected_id == 0 ? placeholder : TRANS("Toggle between General and") + " " + alternate);
+}
+
+void FxSettingsDialog::GeneralSettingsPane::visibilityChanged()
+{
+	if (isVisible())
+	{
+		refreshTogglePresets();
+	}
+}
+
+void FxSettingsDialog::GeneralSettingsPane::modelChanged(FxModel::Event event)
+{
+	if (event == FxModel::Event::PresetListUpdated)
+	{
+		refreshTogglePresets();
+	}
 }
 
 FxSettingsDialog::HelpSettingsPane::HelpSettingsPane() : SettingsPane("Help"), auto_updates_toggle_(TRANS("Automatic updates"))

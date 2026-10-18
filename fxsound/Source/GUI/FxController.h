@@ -56,6 +56,7 @@ public:
 	static constexpr char HK_CMD_NEXT_PRESET[] = "cmd_next_preset";
 	static constexpr char HK_CMD_PREVIOUS_PRESET[] = "cmd_previous_preset";
 	static constexpr char HK_CMD_NEXT_OUTPUT[] = "cmd_change_output";
+	static constexpr char HK_CMD_TOGGLE_PRESET[] = "cmd_toggle_preset";
 	
 	static FxController& getInstance()
 	{
@@ -88,6 +89,9 @@ public:
 	void setPowerState(bool power_state);
     bool setPreset(const String& preset_name, bool notify = true);
 	bool setPreset(int preset_index, bool notify=true);
+	String getTogglePreset();
+	void setTogglePreset(const String& preset_name);
+	bool togglePreset();
 	void setOutput(const String output_device_id, bool notify=true);
 	void setOutput(int output, bool notify=true);
     
@@ -221,6 +225,7 @@ private:
 	static constexpr UINT CMD_NEXT_PRESET = 1003;
 	static constexpr UINT CMD_PREVIOUS_PRESET = 1004;
 	static constexpr UINT CMD_NEXT_OUTPUT = 1005;
+	static constexpr UINT CMD_TOGGLE_PRESET = 1006;
 
 	FxController();
 

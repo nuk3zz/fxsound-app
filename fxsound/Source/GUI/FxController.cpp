@@ -1045,6 +1045,61 @@ bool FxController::setPreset(const String& preset_name, bool notify)
 	return false;
 }
 
+String FxController::getTogglePreset()
+{
+	return settings_.getString("toggle_preset");
+}
+
+void FxController::setTogglePreset(const String& preset_name)
+{
+	if (preset_name.isEmpty())
+	{
+		settings_.setString("toggle_preset", "");
+		return;
+	}
+
+	auto& model = FxModel::getModel();
+	for (int i = 0; i < model.getPresetCount(); i++)
+	{
+		auto preset = model.getPreset(i);
+		if (preset.name == preset_name && preset.name != "General")
+		{
+			settings_.setString("toggle_preset", preset.name);
+			return;
+		}
+	}
+}
+
+bool FxController::togglePreset()
+{
+	auto& model = FxModel::getModel();
+	if (!model.getPowerState())
+		return false;
+
+	auto alternate_name = getTogglePreset();
+	int general_index = -1;
+	int alternate_index = -1;
+	for (int i = 0; i < model.getPresetCount(); i++)
+	{
+		auto preset = model.getPreset(i);
+		if (!File(preset.path).existsAsFile())
+			continue;
+
+		if (preset.name == "General")
+			general_index = i;
+		else if (preset.name == alternate_name)
+			alternate_index = i;
+	}
+
+	if (general_index < 0 || alternate_index < 0)
+	{
+		model.pushMessage(TRANS("Preset toggle requires General and an available alternate preset. Choose the alternate in General Preferences."));
+		return false;
+	}
+
+	return setPreset(model.getSelectedPreset() == general_index ? alternate_index : general_index);
+}
+
 bool FxController::setPreset(int selected_index, bool notify)
 {
 	auto& model = FxModel::getModel();
@@ -1266,6 +1321,11 @@ void FxController::renamePreset(const String& new_name)
 								   FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT, FALSE, 0, L"" };
 		SHFileOperation(&file_op);
 
+		if (getTogglePreset() == preset.name && File(path + "\\" + new_name + ".fac").existsAsFile())
+		{
+			settings_.setString("toggle_preset", new_name);
+		}
+
 		initPresets();
 
 		setPreset(new_name);
@@ -1297,6 +1357,11 @@ void FxController::deletePreset()
 		SHFILEOPSTRUCT file_op = { NULL, FO_DELETE, path, L"",
 								   FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT, FALSE, 0, L"" };
 		SHFileOperation(&file_op);
+
+		if (getTogglePreset() == preset.name && !File(preset.path).existsAsFile())
+		{
+			setTogglePreset("");
+		}
 
 		initPresets();
 
@@ -1363,6 +1428,10 @@ void FxController::resetPresets()
 			SHFILEOPSTRUCT file_op = { NULL, FO_DELETE, path, L"",
 									   FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT, FALSE, 0, L"" };
 			SHFileOperation(&file_op);
+			if (getTogglePreset() == preset.name && !File(preset.path).existsAsFile())
+			{
+				setTogglePreset("");
+			}
 		}
 	}
 
@@ -1980,6 +2049,10 @@ LRESULT CALLBACK FxController::eventCallback(HWND hwnd, const UINT message, cons
 				controller->setPreset(preset_index);
 			}
 		}
+		if (w_param == CMD_TOGGLE_PRESET)
+		{
+			controller->togglePreset();
+		}
 		if (w_param == CMD_NEXT_OUTPUT)
 		{
 			auto output_index = 0;
@@ -2191,7 +2264,7 @@ bool FxController::getHotkey(String cmdKey, int& mod, int& vk)
 
 bool FxController::setHotkey(const String& command, int new_mod, int new_vk)
 {
-	StringArray hotkey_cmds = { HK_CMD_ON_OFF, HK_CMD_OPEN_CLOSE, HK_CMD_NEXT_PRESET, HK_CMD_PREVIOUS_PRESET, HK_CMD_NEXT_OUTPUT };
+	StringArray hotkey_cmds = { HK_CMD_ON_OFF, HK_CMD_OPEN_CLOSE, HK_CMD_NEXT_PRESET, HK_CMD_PREVIOUS_PRESET, HK_CMD_NEXT_OUTPUT, HK_CMD_TOGGLE_PRESET };
 
 	for (int i = 0; i < hotkey_cmds.size(); i++)
 	{
@@ -2242,6 +2315,10 @@ bool FxController::setHotkey(const String& command, int new_mod, int new_vk)
 	{
 		hk_id = CMD_NEXT_OUTPUT;
 	}
+	if (command == HK_CMD_TOGGLE_PRESET)
+	{
+		hk_id = CMD_TOGGLE_PRESET;
+	}
 
 	if (hk_id != 0)
 	{
@@ -2253,7 +2330,8 @@ bool FxController::setHotkey(const String& command, int new_mod, int new_vk)
 			return false;
 		}
 
-		if (::RegisterHotKey(message_window_.getHandle(), hk_id, new_mod, new_vk) != FALSE)
+		auto registration_mod = new_mod | (hk_id == CMD_TOGGLE_PRESET ? MOD_NOREPEAT : 0);
+		if (::RegisterHotKey(message_window_.getHandle(), hk_id, registration_mod, new_vk) != FALSE)
 		{
 			settings_.setInt(command, code);
 			return true;
@@ -2867,6 +2945,14 @@ void FxController::registerHotkeys()
 			}
 		}
 
+		if (getHotkey(HK_CMD_TOGGLE_PRESET, mod, vk) && isValidHotkey(mod, vk))
+		{
+			if (::RegisterHotKey(message_window_.getHandle(), CMD_TOGGLE_PRESET, mod | MOD_NOREPEAT, vk) == FALSE)
+			{
+				logMessage("Could not register preset toggle hotkey; the shortcut may be in use by another application.");
+			}
+		}
+
 		hotkeys_registered_ = true;
 	}
 }
@@ -2880,6 +2966,7 @@ void FxController::unregisterHotkeys()
 		::UnregisterHotKey(message_window_.getHandle(), CMD_NEXT_PRESET);
 		::UnregisterHotKey(message_window_.getHandle(), CMD_PREVIOUS_PRESET);
 		::UnregisterHotKey(message_window_.getHandle(), CMD_NEXT_OUTPUT);
+		::UnregisterHotKey(message_window_.getHandle(), CMD_TOGGLE_PRESET);
 		hotkeys_registered_ = false;
 	}
 }
