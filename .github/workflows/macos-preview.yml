@@ -1,0 +1,33 @@
+name: macOS preview build
+on:
+  push:
+    branches: [feature/windows-preset-toggle]
+    paths:
+      - 'ports/macos/**'
+      - '.github/workflows/macos-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: macos-preview-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    if: github.repository == 'nuk3zz/fxsound-app'
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - name: Check out source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Compile, test and package universal preview
+        run: bash ports/macos/scripts/build-macos.sh
+      - name: Save preview package
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: FxSound-Mac-Preview-universal
+          path: ports/macos/artifacts/*.zip
+          if-no-files-found: error
+          retention-days: 30

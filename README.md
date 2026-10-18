@@ -1,5 +1,22 @@
 # FxSound
 
+## Community fork status
+
+This is nuk3zz's community fork. The original Windows application and DSP remain
+under their existing AGPL license.
+
+- **Windows:** configurable General ↔ selected preset shortcut, default
+  **Ctrl+Alt+B**. Native x64 build and isolated controller/settings checks pass;
+  physical hotkey/audio acceptance is pending. See [usage and build](docs/WINDOWS_PRESET_TOGGLE.md).
+- **macOS:** separate experimental [preview foundation](ports/macos/README.md),
+  with a small EQ rather than the original FxSound DSP. Native Mac and physical
+  acceptance are recorded separately in the preview guide.
+- **Linux:** implementation deferred to the owner's Kali session. See
+  [Kali handoff](docs/KALI_HANDOFF.md).
+
+See the [paired plan](docs/DEVELOPMENT_PLAN.md) and [current handoff](docs/RESUME_HERE.md).
+
+
 FxSound is a digital audio program built for Windows PC's. The background processing, built on a high-fidelity audio engine, acts as a sort of digital soundcard for your system. This means that your signals will have the clean passthrough when FxSound is active. There are active effects for shaping and boosting your sound's volume, timbre, and equalization included on top of this clean processing, allowing you to customize and enhance your sound.
 
 ## General Information
